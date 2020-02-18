@@ -1,4 +1,51 @@
-<h3>Q. Enable certificate rotation for the cluster.</h3>
-<p>
-    
-</p>
+<h2 id="pod">21. 创建静态pod</h2>
+<ul>
+<li><p>Set configuration context $ kubectl config use-context wk8s</p></li>
+<li><p>configure the kubelet systemed managed service, on the node labelled with name=wk8s-node-1,to launch a pod containing a single container of image nginx named myservice automatically.</p></li>
+<li><p>Any spec file requried should be placed in the /etc/kuberneteds/mainfests directory on the node</p></li>
+<li><p>Hints:</p></li>
+<li><p>You can ssh to the failed node using $ ssh wk8s-node-0</p></li>
+<li><p>You can assume elevated privileges on the node with the following command $ sudo -i</p></li>
+</ul>
+<p><details><br /><summary><b>中文翻译</b></summary></p>
+<blockquote>
+<p>配置一个kubelet 系统管理的服务，在标签为name1=wk8s-node-1的节点上配置，要包含一个POD名为myservice的镜像nginx 容器。</p>
+</blockquote>
+<p>所需的任何特定文件应放在/etc/kubernetes/manifests 的节点文件夹内</p>
+<p>解析：</p>
+<p>给出一个节点，完善kubelet配置文件，要求使用systemd配置kubelet</p>
+<p>Static Pods are managed directly by the kubelet daemon on a specific node, without the API server observing them. Unlike Pods that are managed by the control plane (for example, a Deployment); instead, the kubelet watches each static Pod (and restarts it if it crashes).</p>
+<p>Static Pods are always bound to one Kubelet on a specific node.</p>
+<p></details></p>
+<p><details><br /><summary><b>答案</b></summary></p>
+<pre class="sourceCode bash"><code class="sourceCode bash"><span class="co"># 首先，staticPod是固定在某个node上面，由kubelet管理生成的一种pod。</span>
+
+<span class="co"># 具体生成方式是：kubelet扫描固定的文件夹，找到yaml文件统一进行生成</span>
+
+<span class="co"># 查找到staticPod的固定文件夹 ：systemctl status kubelet</span>
+<span class="co"># 在该文件夹中添加自己的yaml文件 ：kubectl run myservice --image=nginx --generator=run-pod/v1 --dry-run -o yaml &gt;21.yml</span>
+<span class="co"># 重新启动kubelet:  systemctl daemon-reload;systemctl restart kubelet</span>
+<span class="co"># 这样之后，在指定文件夹下面的yaml文件就都会以staticPod的形式运行起来。</span>
+
+<span class="co"># 1.进入 wk8s-node-1 节点</span>
+<span class="kw">ssh</span> wk8s-node-1
+
+<span class="co"># 2. 在/etc/kubernetes/manifests 定义pod的yaml文件</span>
+<span class="co">#使用下面的参考命令生成pod文件</span>
+<span class="kw">kubectl</span> run myservice --image=nginx --generator=run-pod/v1 --dry-run -o yaml <span class="kw">&gt;</span>21.yml
+
+<span class="co"># 3. 在 wk8s-node-1 节点上配置kubelet</span>
+<span class="co"># 3.1 方式一：编辑kubelet配置（ /usr/lib/systemd/system/kubelet.service.d）</span>
+<span class="co"># 添加参数 --pod-manifest-path=/etc/kubernetes/manifests</span>
+
+<span class="ot">KUBELET_ARGS=</span><span class="st">&quot;--cluster-dns=10.254.0.10 --cluster-domain=kube.local --pod-manifest-path=/etc/kubernetes/manifests&quot;</span>
+
+<span class="co"># 3.2 方式二： 在kubelet配置（--config=/var/lib/kubelet/config.yaml）文件中</span>
+<span class="co"># 添加   staticPodPath: /etc/kubernetes/manifests</span>
+
+
+<span class="co">#4. 重启服务</span>
+<span class="kw">systemctl</span> daemon-reload
+<span class="kw">systemctl</span> restart kubelet
+<span class="kw">systemctl</span> enable kubelet</code></pre>
+<p></details></p>

@@ -1,4 +1,13 @@
-<h3>Q. Audit the cluster</h3>
-<p>
-    Audit the whole cluster to determine the cluster health and activities.
-</p>
+<h2 id="pod">1. 统计pod错误日志</h2>
+<ul>
+<li><p>Set configuration context $ kubectl config use-context k8s</p></li>
+<li><p><strong>Monitor the logs of Pod foobar</strong> and Extract log lines corresponding to <strong>error unable-to-access-website</strong> Write them to /opt/KULM00201/foobar</p></li>
+</ul>
+<p><details><br /><summary><b>中文翻译</b></summary></p>
+<blockquote>
+<p>监控Pod名称为foobar 的日志，并提取与无法访问错误对应的日志行，将它们写入/opt/KULM00201/foobar</p>
+</blockquote>
+<p></details></p>
+<p><details><br /><summary><b>答案</b></summary></p>
+<pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">kubectl</span> logs foobar <span class="kw">|</span> <span class="kw">grep</span> -i <span class="st">&#39;unable-to-access-website&#39;</span> <span class="kw">&gt;</span> opt/KULM00201/foobar</code></pre>
+<p></details></p>

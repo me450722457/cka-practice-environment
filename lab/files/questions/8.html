@@ -1,6 +1,36 @@
-<h3>Q. Create a pod that uses secrets</h3>
-<p>
-    <li>Pull secrets from environment variables.</li>
-    <li>Pull secrets from a volume.</li>
-    <li>Dump the secrets out via kubectl to show it worked.</li>
-</p>
+<h2 id="service">8. Service</h2>
+<ul>
+<li><p>Set configuration context $ kubectl config use-context k8s</p></li>
+<li><p>Create and configure the service front-end-service</p></li>
+<li><p>so it's accessible through NodePort/ClusterIP and routes to the existing pod named front-end</p></li>
+</ul>
+<p><details><br /><summary><b>中文翻译</b></summary></p>
+<blockquote>
+<p>创建名为front-end-service的服务，将名为front-end的pod，用NodePort/ClusterIP的方式发布出来</p>
+</blockquote>
+<p></details></p>
+<p><details><br /><summary><b>答案</b></summary></p>
+<pre class="sourceCode bash"><code class="sourceCode bash"><span class="co"># 命令形式</span>
+$ <span class="kw">kubectl</span> expose pod front-end --name=front-end-service --type=<span class="st">&#39;NodePort&#39;</span> --port=80
+<span class="kw">service/front-end-service</span> exposed
+
+<span class="co"># yaml形式</span>
+<span class="kw">apiVersion</span>: v1
+<span class="kw">kind</span>: Service
+<span class="kw">metadata</span>:
+  <span class="kw">name</span>: front-end-service
+<span class="kw">spec</span>:
+  <span class="kw">selector</span>:
+    <span class="kw">app</span>: front-end
+  <span class="kw">type</span>: NodePort
+  <span class="kw">ports</span>:
+    <span class="kw">-</span> protocol: TCP
+      <span class="kw">NodePort</span>：80
+      <span class="kw">port</span>: 80
+      <span class="kw">targetPort</span>: 9376
+
+$ <span class="kw">kubectl</span> get svc
+<span class="kw">NAME</span>                TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)        <span class="kw">AGE</span>
+<span class="kw">front-end-service</span>   NodePort    10.96.19.240   <span class="kw">&lt;</span>none<span class="kw">&gt;</span>        80:31028/TCP   10s
+<span class="kw">kubernetes</span>          ClusterIP   10.96.0.1      <span class="kw">&lt;</span>none<span class="kw">&gt;</span>        443/TCP        174d</code></pre>
+<p></details></p>

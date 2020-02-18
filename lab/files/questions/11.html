@@ -1,4 +1,18 @@
-<h3>Q. Create a service </h3>
-<p>
-    Create a service that uses an external load balancer and points to a 3 pod cluster running nginx.
-</p>
+<h2 id="servicepod">11. 统计Service中的Pod</h2>
+<ul>
+<li><p>Set configuration context $ kubectl config use-context k8s</p></li>
+<li><p>Create a file /opt/KUCC00302/kucc00302.txt that lists all pods that implement Service foo in Namespce production</p></li>
+<li><p>The format of the file should be one pod name per line</p></li>
+</ul>
+<p><details><br /><summary><b>中文翻译</b></summary></p>
+<blockquote>
+<p>创建一个文件/opt/KUCC00302/KUCC00302.txt，<br />其中列出在Namespce 为Production中实现Service 为foo的所有pod<br />文件的格式应该是每行一个pod名称</p>
+</blockquote>
+<p></details></p>
+<p><details><br /><summary><b>答案</b></summary></p>
+<pre class="sourceCode bash"><code class="sourceCode bash"><span class="co"># 查看service的endpoint中的ip</span>
+<span class="kw">kubectl</span> describe service foo
+
+<span class="co"># 再根据Endpoints中IP 去查 pod</span>
+<span class="kw">kubectl</span> get po xxxxx -o yaml</code></pre>
+<p></details></p>

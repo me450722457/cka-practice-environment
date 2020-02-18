@@ -1,6 +1,30 @@
-<h3>Q. Create a networking policy such that only pods with the label access=granted can talk to it</h3>
-<p>
-    <li>Create an nginx pod and attach this policy to it.</li>
-    <li>Create a busybox pod and attempt to talk to nginx - should be blocked.</li>
-    <li>Attach the label to busybox and try again - should be allowed.</li>
-</p>
+<h2 id="noready">20. 修复noready状态的节点</h2>
+<ul>
+<li><p>Set configuration context $ kubectl config use-context wk8s</p></li>
+<li><p>A Kubernetes worker node,labelled with name=wk8s-node-0 is in state NotReady.</p></li>
+<li><p>Investigate why this is the case,and perform any appropriate steps to bring the node to a Ready state,ensuring that any chanages are made permanent.</p></li>
+<li><p>Hints:</p></li>
+<li><p>You can ssh to the failed node using $ ssh wk8s-node-0</p></li>
+<li><p>You can assume elevated privileges on the node with the following command $ sudo -i</p></li>
+</ul>
+<p><details><br /><summary><b>中文翻译</b></summary></p>
+<blockquote>
+<p>wk8s集群里面有一个标签为wk8s-node-0的节点是notready状态 ，找到原因，恢复Ready状态，所做的改变要是持久的</p>
+</blockquote>
+<p></details></p>
+<p><details><br /><summary><b>答案</b></summary></p>
+<pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">kubectl</span> get node
+<span class="co"># 查看一个node 是NotReady</span>
+
+<span class="co"># ssh上去</span>
+
+<span class="kw">ssh</span> wk8s-node-0
+
+<span class="co"># 如果不是root用户 用 sudo -I 切换到root用户</span>
+<span class="kw">sudo</span> -i
+<span class="kw">systemctl</span> status kubelet
+
+<span class="co"># 发现没有启动</span>
+<span class="kw">systemctl</span> start kubelet
+<span class="kw">systemctl</span> enable kubelet</code></pre>
+<p></details></p>

@@ -1,4 +1,44 @@
-<h3>Q. Create a scheduled Job</h3>
-<p>
-    Create a job that runs every 3 minutes and prints out the current time.
-</p>
+<h2 id="pod">9. 新分区创建Pod</h2>
+<ul>
+<li><p>Set configuration context $ kubectl config use-context k8s</p></li>
+<li><p>Create a Pod as follows:</p></li>
+<li><p>Name: jenkins</p></li>
+<li><p>Using image: jenkins</p></li>
+<li><p>In a new Kubernetes namespce named website-frontend</p></li>
+</ul>
+<p><details><br /><summary><b>中文翻译</b></summary></p>
+<blockquote>
+<p>先创建一个叫website-frontend的namespace，再使用jenkins镜像生成pod名为jenkins的pod</p>
+</blockquote>
+<p></details></p>
+<p><details><br /><summary><b>答案</b></summary></p>
+<pre class="sourceCode bash"><code class="sourceCode bash"><span class="co"># 先试用命令生成pod的yaml模版文件</span>
+<span class="kw">kubectl</span> run jenkins --image=jenkins --generator=run-pod/v1 --dry-run -o yaml <span class="kw">&gt;</span> 9pod.yml
+
+<span class="co"># 创建namespace</span>
+<span class="kw">kubectl</span> create namespace website-frontend
+
+<span class="co"># 查看namespace</span>
+<span class="kw">kubectl</span> get ns
+
+<span class="co"># 创建pod，方法一，修改生成的yaml文件，添加namespace信息</span>
+<span class="kw">apiVersion</span>: v1
+<span class="kw">kind</span>: Pod
+<span class="kw">metadata</span>:
+  <span class="kw">creationTimestamp</span>: null
+  <span class="kw">labels</span>:
+    <span class="kw">run</span>: jenkins
+  <span class="kw">name</span>: jenkins
+  <span class="kw">namespace</span>: website-frontend
+<span class="kw">spec</span>:
+  <span class="kw">containers</span>:
+  <span class="kw">-</span> image: jenkins
+    <span class="kw">name</span>: jenkins
+    <span class="kw">resources</span>: <span class="dt">{}</span>
+  <span class="kw">dnsPolicy</span>: ClusterFirst
+  <span class="kw">restartPolicy</span>: Always
+<span class="kw">status</span>: <span class="dt">{}</span>
+
+<span class="co"># 创建pod，方法二，创建pod时直接指定namespace</span>
+<span class="kw">kubectl</span> apply -f 9pod.yml -n=website-frontend</code></pre>
+<p></details></p>

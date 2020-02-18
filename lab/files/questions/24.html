@@ -1,2 +1,29 @@
-<h3>Q. Bootstrap a Kubernetes v1.10 cluster using kubeadm</h3>
-<p>You need to bootstrap a Kubernetes v1.10 cluster with one master and one worker node using kubeadm.</p>
+<h2>24. 持久卷</h2>
+<ul>
+<li><p>Set configuration context $ kubectl config use-context hk8s</p></li>
+<li><p>Create a persistent volume with name app-config of capacity 1Gi and access mode ReadWriteOnce.</p></li>
+<li><p>The type of volume is hostPath and its location is /srv/app-config</p></li>
+</ul>
+<p><details><br /><summary><b>中文翻译</b></summary></p>
+<blockquote>
+<p>创建一个持久卷，名称为app-config，容量为1Gi，访问模式为ReadWriteOnce<br />卷的类型是hostPath，它的位置是/srv/app-confi</p>
+</blockquote>
+<p></details></p>
+<p><details><br /><summary><b>答案</b></summary></p>
+<pre class="sourceCode bash"><code class="sourceCode bash">$ <span class="kw">vim</span> persistent.yaml
+
+<span class="kw">apiVersion</span>: v1
+<span class="kw">kind</span>: PersistentVolume
+<span class="kw">metadata</span>:
+  <span class="kw">name</span>: app-config
+<span class="kw">spec</span>:
+  <span class="kw">capacity</span>:
+    <span class="kw">storage</span>: 1Gi
+  <span class="kw">accessModes</span>:
+    <span class="kw">-</span> ReadWriteOnce
+  <span class="kw">hostPath</span>:
+    <span class="kw">path</span>: /srv/app-config
+
+$ <span class="kw">kubectl</span> apply -f persistent.yaml</code></pre>
+<p></details></p>
+

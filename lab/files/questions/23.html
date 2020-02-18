@@ -1,8 +1,88 @@
-<h3>Q. Debug pod failure</h3>
-<p>
-    Deploy a pod using <a href="https://github.com/kubernetes/website/blob/master/content/en/docs/tasks/debug-application-cluster/termination.yaml">this manifest</a>.
-    <br>
-    <li>Monitor the pod's deployment status.</li>
-    <li>Debug the cause of pod failure.</li>
-    <li>Customize the termination message as per your liking.</li>
-</p>
+<h2 id="kubeletpod">23. 集群故障排查（kubelet配置的静态Pod路径）</h2>
+<ul>
+<li><p>Set configuration context $ kubectl config use-context bk8s</p></li>
+<li><p>Given a partially-funnctioning Kubernetes cluster,identify symptoms of failure on the cluster.</p></li>
+<li><p>Determine the node,the failing service and take actions to bring up the failed service and restore the health of the cluster.</p></li>
+<li><p>Ensure that any changes are made permanently.</p></li>
+<li><p>The worker node in this cluster is labelled with name=bk8s-node-0</p></li>
+<li><p>Hints:</p></li>
+<li><p>You can ssh to the relevant nodes using $ ssh $(NODE) where $(NODE) is one of bk8s-master-0 or bk8s-node-0</p></li>
+<li><p>You can assume elevated privileges on any node in the cluster with the following command $ sudo -i</p></li>
+</ul>
+<p><details><br /><summary><b>中文翻译</b></summary></p>
+<blockquote>
+<p>给定一个部分功能正常的Kubernetes集群，识别集群上的故障症状。<br />确定节点、failling服务器并采取行动启动失败的服务并恢复集群的健康状态，确保永久地进行任何更改。<br />这个集群中的工作节点被标记为name=bk8-node-0</p>
+</blockquote>
+<p></details></p>
+<p><details><br /><summary><b>答案</b></summary></p>
+<p><strong>答案思路：</strong></p>
+<ol>
+<li>ssh到bk8s-node-0先判断此集群的搭建方式，是用kubeadm方式搭建还是用二进制方式搭建</li>
+</ol>
+<ul>
+<li>查看/etc/kubernetes/manifests 里有没有etcd、kube-apiserver.yaml、kube-controller-manager.yaml、schedule.yaml，如果有这4个文件，则是以kubeadm方式安装，实现方式为静态Pod方式实现<br /></li>
+<li>找到kubelet服务加载的配置文件，在里面加上静态pod的路径即可<br /></li>
+<li>如果controller-manager是以服务的方式启动的，则start controller-manager服务。</li>
+</ul>
+<ol>
+<li>kubelet安装后，启动方式有好几种，考试环境是修改加载的kubelet.service文件</li>
+</ol>
+<ul>
+<li><p>在里面加上--manifest-url=/etc/kubernetes/manifests</p></li>
+<li><p>我这个环境是在/var/lib/kubelet/config.yaml 里加入(--config=/var/lib/kubelet/config.yaml )</p></li>
+</ul>
+<ol>
+<li>重启kubelet服务</li>
+</ol>
+<ul>
+<li><code>systemctl restart kubelet</code></li>
+</ul>
+<pre class="sourceCode bash"><code class="sourceCode bash"><span class="co">#切换集群以后：</span>
+
+<span class="co"># 1. 执行：kubectl get nodes     pods    cs等命令，发现执行不了，报错。</span>
+  返回<span class="kw">xxx.xxx.xxx.xxx</span>:6443 <span class="kw">………..</span>
+
+<span class="co"># 2. ssh登陆到wk8s -master-0上检查服务，如master上的4大服务，</span>
+
+<span class="kw">api-server/schedule/controllor-manager/etcd</span>
+
+<span class="kw">systemctl</span> list-unit-files <span class="kw">|</span> <span class="kw">grep</span> controller-manager    <span class="co">#没有服务</span>
+<span class="kw">systemctl</span> list-unit-files <span class="kw">|</span> <span class="kw">grep</span> api-server       <span class="co">#没有服务</span>
+
+<span class="co"># 3. 此刻进入/etc/kubernetes/manifest文件夹中，可以看到api-server.yaml  controller-manager.yaml等4个文件。</span>
+判断集群安装方式为<span class="kw">kubeadm</span>安装
+
+<span class="co"># 4. systemctl status kubelet看到启动正常启动的，</span>
+说明<span class="kw">api-server</span>、controlloer-manager、etcd、schedule这几个pod 没启动，检查静态pod配置.
+
+<span class="co"># 考试环境把正确的/etc/kubernetes/manifest  换成了/etc/kubernetes/DODKSIYF 路径，</span>
+<span class="co"># 此路径并不存在，</span>
+<span class="co"># 把这个错误的路径换成到存放api/controller-manager/etcd/schedule这几个yaml文件存放的路径，</span>
+重<span class="kw">启Kubelet</span>，排错完成。
+
+再查看<span class="kw">node啥</span>的，就OK了
+
+
+<span class="kw">kubectl</span> get cs 能看到controller manager 没有启动
+
+登<span class="kw">陆到master</span>上
+<span class="kw">找到</span>相<span class="kw">关</span>服务重启
+
+<span class="kw">systemctl</span> start kube-manager-controller.service</code></pre>
+<h5 id="kubelet-pod">查看kubelet配置文件-静态pod路径</h5>
+<pre class="sourceCode bash"><code class="sourceCode bash"><span class="co"># 找到config配置</span>
+<span class="kw">systemctl</span> status kubelet
+
+
+<span class="co"># 在结果查找config 配置信息</span>
+<span class="kw">/usr/bin/kubelet</span>
+<span class="kw">--bootstrap-kubeconfig</span>=/etc/kubernetes/bootstrap-kubelet.conf
+<span class="kw">--kubeconfig</span>=/etc/kubernetes/kubelet.conf --config=/var/lib/kubelet/config.yaml
+<span class="kw">--cgroup-driver</span>=systemd--network...
+
+<span class="co"># 查找静态pod配置路径</span>
+<span class="kw">cat</span> /var/lib/kubelet/config.yaml
+<span class="kw">cat</span> /var/lib/kubelet/config.yaml <span class="kw">|</span> <span class="kw">grep</span> staticPodPath
+
+<span class="kw">staticPodPath</span>:/etc/kubernetes/manifests</code></pre>
+<p></details></p>

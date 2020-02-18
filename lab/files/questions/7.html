@@ -1,4 +1,47 @@
-<h3>Q. Create a busybox pod</h3>
-<p>
-    Create a busybox pod without using a manifest and then edit the manifest as per your liking.
-</p>
+<h2 id="deployment">7. Deployment资源的更新</h2>
+<ul>
+<li><p>Set configuration context $ kubectl config use-context k8s</p></li>
+<li><p>Create a deployment as follows</p></li>
+<li><p>Name：nginx-app</p></li>
+<li><p>Using container nginx with version 1.11.9-alpine</p></li>
+<li><p>The deployment should contain 3 replicas</p></li>
+<li><p>Next, deploy the app with new version 1.12.0-alpine by performing a rolling update and record that update.</p></li>
+<li><p>Finally, rollback that update to the previous version 1.11.9-alpine</p></li>
+</ul>
+<p><details><br /><summary><b>中文翻译</b></summary></p>
+<blockquote>
+<p>按照以下方式创建部署</p>
+<ul>
+<li>名称:nginx-app<br /></li>
+<li>使用1.11.9-alpine版本的容器nginx<br /></li>
+<li>deploymnet应该包含3个副本<br /></li>
+<li>接下来，使用新版本1.12.0-alpine部署应用程序，执行滚动更新并记录更新。<br /></li>
+<li>最后，将更新回滚到前一个版本1.11.9-alpine</li>
+</ul>
+</blockquote>
+<p></details></p>
+<p><details><br /><summary><b>答案</b></summary></p>
+<pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">kubectl</span> run nginx-app --image=nginx:1.11.9-alpine --replicas=3
+
+<span class="kw">kubectl</span> set image deployment/nginx-app nginx-app=nginx:1.12.0-alpine --record=true
+
+<span class="kw">kubectl</span> rollout undo deployment/nginx-app
+
+<span class="co"># 执行后，可以Watch rolling update status of &quot;nginx-app&quot; deployment until completion</span>
+<span class="kw">kubectl</span> rollout status -w deployment nginx-app
+
+<span class="co"># Check the history of deployments including the revision</span>
+<span class="kw">kubectl</span> rollout history deployment/nginx-app</code></pre>
+<p>导出最终的deployment spec</p>
+<blockquote>
+<p><code>kubectl get deployment nginx-app -o yaml -o=jsonpath=&quot;{.spec}{\&quot;\n\&quot;}&quot; &gt;7.txt</code></p>
+</blockquote>
+<pre class="sourceCode bash"><code class="sourceCode bash">
+$ <span class="kw">kubectl</span> get deployment nginx-app -o=custom-columns=NAME:spec <span class="kw">&gt;</span> 7.txt
+
+$ <span class="kw">cat</span> 7.txt
+<span class="kw">NAME</span>
+<span class="kw">map</span>[progressDeadlineSeconds:600 replicas:3 revisionHistoryLimit:10 selector:map[matchLabels:map[run:nginx-app]] strategy:map[rollingUpdate:map[maxSurge:25%maxUnavailable:25%] type:RollingUpdate] template:map[metadata:map[creationTime
+<span class="kw">stamp</span>:<span class="kw">&lt;</span>nil<span class="kw">&gt;</span> labels:map[run:nginx-app]] spec:map[containers:[map[image:nginx:1.11.9-alpine imagePullPolicy:IfNotPresent name:nginx-app resources:map[] termin
+<span class="kw">ationMessagePath</span>:/dev/termination-log terminationMessagePolicy:File]] dnsPolicy:ClusterFirst restartPolicy:Always schedulerName:default-scheduler securityContext:map[] terminationGracePeriodSeconds:30]]]</code></pre>
+<p></details></p>

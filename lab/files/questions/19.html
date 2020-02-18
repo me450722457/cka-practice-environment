@@ -1,4 +1,37 @@
-<h3>Q. Backup the etcd database</h3>
-<p>
-    <li>Backup the etcd database at <i>/opt/baks/etcd0001/ .</i></li>
-</p>
+<h2 id="kubectl-drain-">19. 使用kubectl drain 从集群中移除节点</h2>
+<ul>
+<li><p>Set configuration context $ kubectl config use-context ek8s</p></li>
+<li><p>Set the node labelled with name=ek8s-node-1 as unavailable and reschedule all the pods running on it</p></li>
+</ul>
+<p><details><br /><summary><b>中文翻译</b></summary></p>
+<blockquote>
+<p>把标签为name=ek8s-node-1的node 设置为unavailable和重新安排所有运行在上面的pods</p>
+</blockquote>
+<p></details></p>
+<p><details><br /><summary><b>答案</b></summary></p>
+<pre class="sourceCode bash"><code class="sourceCode bash"><span class="co"># 方法一</span>
+<span class="co"># 使用kubectl drain优雅的结束节点上的所有 pod 并同时标记节点为不可调度：</span>
+<span class="kw">kubectl</span> drain <span class="ot">$NODENAME</span>
+<span class="co"># 在您正试图使节点离线时，这将阻止新的 pod 落到它们上面。</span>
+
+<span class="co"># 对于有 replica set 的 pod 来说，它们将会被新的 pod 替换并且将被调度到一个新的节点。此外，如果 pod 是一个 service 的一部分，则客户端将被自动重定向到新的 pod。</span>
+<span class="co"># 对于没有 replica set 的 pod，您需要手动启动 pod 的新副本，并且如果它不是 service 的一部分，您需要手动将客户端重定向到这个 pod。</span>
+<span class="co"># 在节点上执行维护工作。</span>
+
+<span class="co"># 重新使节点可调度：</span>
+<span class="kw">kubectl</span> uncordon <span class="ot">$NODENAME</span>
+
+
+<span class="kw">kubectl</span> get nodes -l name=ek8s-node-1
+
+<span class="co"># 直接drain会出错，需要添加--ignore-daemonsets --delete-local-data参数</span>
+
+<span class="kw">kubectl</span> drain wk8s-node-1 --ignore-daemonsets=true --delete-local-data=true --force=true
+
+<span class="co"># 方法二</span>
+<span class="co"># 使用taint将node设置成NoExecute，在官网上面搜索taint，点进去第一个链接即可。</span>
+<span class="co"># NoSchedule 与 NoExecute 的区别：NoSchedule 只会保证后面部署的pod不会部署当前节点，而不能驱除之前已经部署在该节点的pod。而 NoExecute 可以。</span>
+<span class="kw">kubectl</span> taint nodes node1 key=value:NoExecute
+
+<span class="kw">kubectl</span> taint nodes node1 key:NoExecute-</code></pre>
+<p></details></p>

@@ -1,5 +1,13 @@
-<h3>Q. Enable cluster auditing</h3>
-<p>
-    <li>Enable cluster wide auditing. You can use the audit policy provided <a href="https://raw.githubusercontent.com/kubernetes/website/master/content/en/examples/audit/audit-policy.yaml">here.</a></li>
-    <li>Make sure the audit logs are properly generated and saved to a log file.</li>
-</p>
+<h2>2. 排序</h2>
+<ul>
+<li><p>Set configuration context $ kubectl config use-context k8s</p></li>
+<li><p><strong>List all PVs sorted by name</strong>,saving <strong>the full kubectl output to /opt/kUCC0010/my_volumes.</strong> <strong>Use kubectl's own functionally for sorting the output</strong>,and do not mainpulate it any further</p></li>
+</ul>
+<p><details><br /><summary><b>中文翻译</b></summary></p>
+<blockquote>
+<p>列出所有按名称排序的pv，将完整的kubectl输出保存到a。使用kubectl函数对输出进行排序，并且不再进一步操作它。</p>
+</blockquote>
+<p></details></p>
+<p><details><br /><summary><b>答案</b></summary></p>
+<pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">kubectl</span> get pv --sort-by=.metadata.name <span class="kw">&gt;</span> /opt/kUCC0010/my_volumes</code></pre>
+<p></details></p>

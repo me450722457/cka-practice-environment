@@ -1,5 +1,27 @@
-<h3>Q. Create 2 pod definitions.</h3>
-<p>Create 2 pod definitions with following features:
-    <li>The first pod should be called master and second pod should be called sidecar.</li>
-    <li>The second pod should be scheduled to run anywhere the first pod is running i.e. The 2nd pod should run alongside the first pod on the same node.</li>
-</p>
+<h2 id="node1tls-bootstrap">22. 给出一个集群，将节点node1添加到集群中，使用TLS bootstrap</h2>
+<ul>
+<li><p>Set configuration context: $ kubectl config use-context ik8s</p></li>
+<li><p>In this task, you will configure a new Node, ik8s-node-0, to join a Kubernetes cluster as follows:</p></li>
+<li>Configure kubelet for automatic certificate rotation and ensure that both server and client CSRs are automatically approved and signed as appropriate via the use of RBAC.<br /></li>
+<li>Ensure that the appropriate cluster-info ConfigMap is created and configured appropriately in the correct namespace so that future Nodes can easily join the cluster.<br /></li>
+<li>Your bootstrap kubeconfig should be created on the new Node at /etc/kubernetes/bootstrap-kubelet.conf(do not remove this file once your Node has successfully joined the cluster).<br /></li>
+<li>The appropriate cluster-wide CA certificate is located on the Node at /etc/kubernetes/pki/ca.crt. You should ensure that any automatically issued certificates are installed to the Node at /var/lib/kubelet/pki, and that the kubeconfig file for kubelet will be rendered at /etc/kubernetes/kubelet.conf upon successful bootstrapping Use an additional group for bootstrapping .<br /></li>
+<li>Nodes attempting to join the cluster, which should be called system:bootstrappers:cka:default-node-token Solution should start automatically on boot, with the systemd service unit file for kubelet available at /etc/systemd/system/kubelet.service.<br /></li>
+<li>To test your solution, create the appropriate resources from the spec file located at /opt/KUIN00202/kube-flannel.yaml. This will create the necessary supporting resources as well as the kube-flannel-ds DaemonSet.<br /></li>
+<li><p>You should ensure that this DaemonSet is correctly deployed to the single Node in the cluster.</p></li>
+<li><p>Hints:</p></li>
+<li>kubelet is not configured or running on ik8s-master-0 for this task, and you should not attempt to configure it.<br /></li>
+<li>You will make use of TLS bootstrapping to complete this task.<br /></li>
+<li>You can obtain the IP address of the Kubernetes API server via the following command: <code>$ ssh ik8s-node-0 getent hosts ik8s-master-0</code>.<br /></li>
+<li>The API server is listening on the usual port, 6443/tcp, and will only serve TLS requests.<br /></li>
+<li>The kubelet binary is already installed on ik8s-node-0 at /usr/bin/kubelet.<br /></li>
+<li>You will not need to deploy kube-proxy to the cluster during this task.<br /></li>
+<li>You can ssh to the new worker node using: <code>$ ssh ik8s-node-0</code>.<br /></li>
+<li>You can ssh to the master node with the following command: <code>$ ssh ik8s-master-0</code>.<br /></li>
+<li>No further configuration of control plane services running on <code>ik8s-master-0</code> is required.<br /></li>
+<li>You can assume elevated privileges on both nodes with the following command: <code>$ sudo -i</code><br /></li>
+<li><p>Docker is already installed and running on <code>ik8s-node-0</code></p></li>
+</ul>
+<p><details><br /><summary><b>答案</b></summary></p>
+<p>No answer.Or check <a href="https://blog.csdn.net/fly910905/article/details/103524438">this page</a> for help</p>
+<p></details></p>

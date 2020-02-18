@@ -1,4 +1,42 @@
-<h3>Q. Write an ingress rule that redirects calls to /foo to one service and to /bar to another</h3>
-<p>
-    
-</p>
+<h2 id="nslookupservicepoddns">17. nslookup查找service和pod的DNS记录</h2>
+<ul>
+<li><p>Set configuration context $ kubectl config use-context k8s</p></li>
+<li><p>Create a deployment as follows</p></li>
+<li><p>Name: nginx-dns</p></li>
+<li><p>Exposed via a service: nginx-dns</p></li>
+<li><p>Ensure that the service &amp; pod are accessible via their respective DNS records</p></li>
+<li><p>The container(s) within any pod(s) running as a part of this deployment should use the nginx image</p></li>
+<li><p>Next,use the utiliity nslookup to look up the DNS records of the service &amp; pod and write the output to /opt/service.dns and /opt/pod.dns respectively</p></li>
+<li><p>Ensure you use the busybox:1.28 image (or earliser) for any testing, an the latest release has an unpstream bug which impacts the use of nslookup</p></li>
+</ul>
+<p><details><br /><summary><b>中文翻译</b></summary></p>
+<blockquote>
+<p>创建一个deployment 名：nginx-dns ，发布一个服务，名为: nginx-dns</p>
+<p>确保service 和pod可以通过各自的DNS记录访问</p>
+<p>作为deployment的一部分运行的任何pod中的容器都应该使用nginx镜像</p>
+<p>接下来，使用实用程序nslookup查找service和pod的DNS记录，并将输出分别写入/opt/service.dns和/opt/pod.dns</p>
+<p>确保您使用busybox:1.28 image(或更早版本)进行任何测试，最新版本有一个unpstream bug，影响nslookup的使用。</p>
+</blockquote>
+<p></details></p>
+<p><details><br /><summary><b>答案</b></summary></p>
+<pre class="sourceCode bash"><code class="sourceCode bash"><span class="co">#第一步：创建deployment</span>
+<span class="kw">kubectl</span> run nginx-dns --image=nginx
+
+<span class="co">#第二步：发布服务</span>
+<span class="kw">kubectl</span> expose deployment nginx-dns --port=80
+
+<span class="co">#第三步：查询podIP</span>
+<span class="kw">kubectl</span>  get pods -o wide (获取pod的ip)  比如<span class="kw">Ip</span>是：<span class="kw">10.244.1.37</span> 
+
+<span class="co">#第四步：使用busybox1.28版本进行测试</span>
+
+<span class="co">#创建一个指定版本的busybox，用于执行nslookup</span>
+<span class="kw">kubectl</span> create -f https://k8s.io/examples/admin/dns/busybox.yaml
+
+<span class="co">#将svc的dns记录写入文件中</span>
+<span class="kw">kubectl</span> exec -ti busybox -- nslookup nginx-dns <span class="kw">&gt;</span> 指定文件
+
+
+<span class="co">#将获取的pod ip地址使用nslookup查找dns记录</span>
+<span class="kw">kubectl</span> exec -ti busybox -- nslookup <span class="kw">&lt;</span>Pod ip<span class="kw">&gt;</span> <span class="kw">&gt;</span> 指定文件</code></pre>
+<p></details></p>

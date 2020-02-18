@@ -1,4 +1,35 @@
-<h3>Q. Create a daemon set</h3>
-<p>
-    Create a daemon set and change the update strategy to do a rolling update with a delay of 30 seconds between each update.
-</p>
+<h2 id="pod">6. Pod的调度</h2>
+<ul>
+<li><p>Set configuration context $ kubectl config use-context k8s</p></li>
+<li><p>Schedule a Pod as follows:</p></li>
+<li><p>Name:nginx-kusc00101</p></li>
+<li><p>Image:nginx</p></li>
+<li><p>Nodeselector:disk=ssd</p></li>
+</ul>
+<p><details><br /><summary><b>中文翻译</b></summary></p>
+<blockquote>
+<p>创建一个pod名称为nginx，并将其调度到节点为 disk=ssd上</p>
+</blockquote>
+<p></details></p>
+<p><details><br /><summary><b>答案</b></summary></p>
+<pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">apiVersion</span>: v1
+<span class="kw">kind</span>: Pod
+<span class="kw">metadata</span>:
+  <span class="kw">name</span>: nginx-kusc00101
+  <span class="kw">labels</span>:
+    <span class="kw">env</span>: test
+<span class="kw">spec</span>:
+  <span class="kw">containers</span>:
+  <span class="kw">-</span> name: nginx
+    <span class="kw">image</span>: nginx
+    <span class="kw">imagePullPolicy</span>: IfNotPresent
+  <span class="kw">nodeSelector</span>:
+    <span class="kw">disk</span>: ssd</code></pre>
+<blockquote>
+<p>校验：是否调度成功</p>
+<ul>
+<li>在创建pod时，通过 kubectl get node --show-labels 查看 disk=ssd 标签在哪个node上<br /></li>
+<li>pod创建后，通过 kubectl get pod nginx-kusc00101 -o wide 查看pod是否调度到对应的主机</li>
+</ul>
+</blockquote>
+<p></details></p>

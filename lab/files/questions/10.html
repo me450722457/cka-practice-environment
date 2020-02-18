@@ -1,4 +1,30 @@
-<h3>Q. Create a parallel Job</h3>
-<p>
-    Create a job that runs 80 times, with 5 containers at a time, and prints "Hello parallel world".
-</p>
+<h2 id="deployment--dry-run">10. Deployment创建（--dry-run）</h2>
+<ul>
+<li><p>Set configuration context $ kubectl config use-context k8s</p></li>
+<li><p>Create a deployment spce file that will：</p></li>
+<li><p>launch 7 replicas of the redis image with the label:app_env_stage=dev</p></li>
+<li><p>Deployment name: kua100201</p></li>
+<li><p>Save a copy of this spec file to /opt/KUAL00201/deploy_spec.yaml</p></li>
+<li><p>When you are done,clean up (delete) any new k8s API objects that you produced during this task</p></li>
+</ul>
+<p><details><br /><summary><b>中文翻译</b></summary></p>
+<blockquote>
+<p>创建一个deployment文件，文件将：</p>
+<ul>
+<li>启动7个redis镜像副本，镜像标签是：app_env_stage=dev<br /></li>
+<li>deployment名称：kual00201<br /></li>
+<li>将规范文件的副本保存到/opt/KUAL002001/deploy_spec.yaml (or .json)<br /></li>
+<li>完成后，清理(删除)在此任务期间生成的任何新的k8s API对象</li>
+</ul>
+</blockquote>
+<p></details></p>
+<p><details><br /><summary><b>答案</b></summary></p>
+<pre class="sourceCode bash"><code class="sourceCode bash"><span class="co"># 使用--dry-run选项生成创建deployment的yaml文件</span>
+<span class="kw">kubectl</span> run kua100201 --image=redis --replicas=7 --labels=app_env_stage=dev --dry-run -o yaml <span class="kw">&gt;</span> /opt/KUAL002001/deploy_spec.yaml
+
+<span class="co"># 创建deploy</span>
+<span class="kw">kubectl</span> apply -f /opt/KUAL002001/deploy_spec.yaml
+
+<span class="co"># 清理deploy</span>
+<span class="kw">kubectl</span> delete -f /opt/KUAL002001/deploy_spec.yaml</code></pre>
+<p></details></p>

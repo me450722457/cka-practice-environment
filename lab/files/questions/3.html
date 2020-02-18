@@ -1,9 +1,45 @@
-<h3>Q. Create a deployment running nginx version 1.12.2 that will run in 2 pods</h3>
-<p>
-    <li>Scale this to 4 pods.</li>
-    <li>Scale it back to 2 pods.</li>
-    <li>Upgrade nginx version to 1.13.8</li>
-    <li>Check the status of the upgrade</li>
-    <li>How do you do this in a way that you can see history of what happened?</li>
-    <li>Undo the upgrade</li>
-</p>
+<h2 id="daemonset">3. Daemonset</h2>
+<ul>
+<li><p>Set configuration context $ kubectl config use-context k8s</p></li>
+<li>Ensure a single instance of Pod nginx is running on each node of the kubernetes cluster where nginx also represents the image name which has to be used.<br /></li>
+<li><strong>Do no override any taints currently in place</strong>.<br /></li>
+<li><p>Use Daemonset to complete this task and use ds.kusc00201 as Daemonset name.</p></li>
+</ul>
+<p><details><br /><summary><b>中文翻译</b></summary></p>
+<blockquote>
+<ul>
+<li>确保在kubernetes集群的每个节点上运行一个Pod nginx实例，其中nginx还表示必须使用的镜像名称。<br /></li>
+<li>不要覆盖任何当前存在的污点( 不要有tolerations)<br /></li>
+<li>使用Daemonset 完成此任务，并使用ds.kusc00201作为Daemonset名称</li>
+</ul>
+</blockquote>
+<p></details></p>
+<p><details><br /><summary><b>答案</b></summary></p>
+<pre class="sourceCode bash"><code class="sourceCode bash">如<span class="kw">何</span>调度Daemon Pod
+<span class="kw">正常</span>情况下，Pod运行在哪个机器上是由K8s scheduler决定的。然而，由Daemon Controller创建的Pod已经确定了在哪个机器上（Pod创建时指定了.spec.nodeName）,因此：
+<span class="kw">-</span> DaemonSet Controller并不关心节点是<span class="kw">否</span>有<span class="kw">unschedulable字</span>段
+<span class="kw">-</span> DaemonSet Controller可以创建Pod，即使scheduler还没启动，这对集群启动是非常有帮助的
+
+<span class="kw">Deamon</span> Pod关心Taint和Toleration，他们会为没有指定tolerationSeconds的node.kubernets.io/not-ready和node.alpha.kubernets.io/unreachable的Taint，创建具有NoExecute的Toleration。
+
+这<span class="kw">确</span>保当alpha特性的TaintBasedEvictions被启动时，发生节点故障，比如网络分区，这时他们将不会被清除掉（当 TaintBasedEvictions特性没有启用，在这些场景下也不会被清除，但会因为 NodeController 的硬编码行为而被清除，而不会因为 Toleration 导致被清除）
+
+官<span class="kw">网</span>搜索Daemonset
+
+<span class="kw">apiVersion</span>: apps/v1
+<span class="kw">kind</span>: DaemonSet
+<span class="kw">metadata</span>:
+  <span class="kw">name</span>: ds.kusc00201
+<span class="kw">spec</span>:
+  <span class="kw">selector</span>:
+    <span class="kw">matchLabels</span>:
+      <span class="kw">name</span>: nginx
+  <span class="kw">template</span>:
+    <span class="kw">metadata</span>:
+      <span class="kw">labels</span>:
+        <span class="kw">name</span>: nginx
+    <span class="kw">spec</span>:
+      <span class="kw">containers</span>:
+      <span class="kw">-</span> name: nginx
+        <span class="kw">image</span>: nginx</code></pre>
+<p></details></p>

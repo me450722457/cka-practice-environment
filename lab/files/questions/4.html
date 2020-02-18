@@ -1,5 +1,87 @@
-<h3>Q. Create a service that uses a scratch disk</h3>
-<p>
-    <li>Change the service to mount a disk from the host.</li>
-    <li>Change the service to mount a persistent volume.</li>
-</p>
+<h2 id="init">4. init容器</h2>
+<ul>
+<li><p>Set configuration context $ kubectl config use-context k8s</p></li>
+<li><p>Perform the following tasks <strong>Add an init container to lumpy-koala (which has been defined in spec file /opt/kucc00100/pod-sepc-KUCC00100.yaml)</strong></p></li>
+<li><p><strong>The init container should create an empty file named /workdir/calm.txt。</strong></p></li>
+<li><p><strong>If /workdir/calm.txt is not be detected,the Pod should exit.</strong> Once the spec file has been updated with the init container definition, the Pod should be created.</p></li>
+</ul>
+<p><details><br /><summary><b>中文翻译</b></summary></p>
+<blockquote>
+<p>执行以下任务：</p>
+<ul>
+<li>向lumpy—koala添加一个init容器(已在/opt/kucc00100/pod-spec-kucc00100.yaml中定义)<br /></li>
+<li>init容器应该创建一个名为/workdir/calm.txt的空文件<br /></li>
+<li>如果/workdir/calm.txt没有检测到，Pod应该退出<br /></li>
+<li>一旦使用init容器定义更新了 spec文件，就应该创建Pod</li>
+</ul>
+</blockquote>
+<p></details></p>
+<p><details><br /><summary><b>答案</b></summary></p>
+<blockquote>
+<p>考点：init Container。要用到livenessProbes</p>
+</blockquote>
+<pre class="sourceCode bash"><code class="sourceCode bash"><span class="co"># 在/opt/kucc00100/pod-spec-KUCC00100.yaml最后加上以下内容：</span>
+  <span class="kw">initContainers</span>:
+  <span class="kw">-</span> name: init-c
+    <span class="kw">image</span>: busybox
+    <span class="kw">command</span>: [<span class="st">&quot;/bin/sh&quot;</span>, <span class="st">&quot;-c&quot;</span>, <span class="st">&quot;touch /workdir/calm.txt&quot;</span>]
+
+
+/<span class="kw">pod-spec-KUCC00100.yaml</span>文件livenessProbe的写法：
+
+<span class="kw">apiVersion</span>: v1
+<span class="kw">kind</span>: Pod
+<span class="kw">metadata</span>:
+  <span class="kw">name</span>: lumpy-koala
+<span class="kw">spec</span>:
+  <span class="kw">volumes</span>:
+  <span class="kw">-</span> name: workdir
+    <span class="kw">emptyDir</span>: <span class="dt">{}</span>
+  <span class="kw">containers</span>:
+  <span class="kw">-</span> name: checker
+    <span class="kw">image</span>: nginx
+    <span class="kw">livenessProbe</span>:
+      <span class="kw">exec</span>:
+        <span class="kw">command</span>: [<span class="st">&quot;test&quot;</span>,<span class="st">&quot;-e&quot;</span>,<span class="st">&quot;/workdir/calm.txt&quot;</span>]
+    <span class="kw">volumeMounts</span>:
+    <span class="kw">-</span> name: workdir
+      <span class="kw">mountPath</span>: /workdir
+  <span class="kw">initContainers</span>:
+  <span class="kw">-</span> name: init-busybox
+    <span class="kw">image</span>: busybox
+    <span class="kw">command</span>: [<span class="st">&quot;/bin/sh&quot;</span>, <span class="st">&quot;-c&quot;</span>, <span class="st">&quot;touch /workdir/calm.txt&quot;</span>]
+    <span class="kw">volumeMounts</span>:
+    <span class="kw">-</span> name: workdir
+      <span class="kw">mountPath</span>: /workdir
+
+
+/<span class="kw">pod-spec-KUCC00100.yaml</span>文件不使用livenessProbe的写法：
+<span class="kw">apiVersion</span>: v1
+<span class="kw">kind</span>: Pod
+<span class="kw">metadata</span>:
+  <span class="kw">name</span>: kumpy-koala
+<span class="kw">spec</span>:
+  <span class="kw">volumes</span>:
+  <span class="kw">-</span> name: workdir
+    <span class="kw">emptyDir</span>: <span class="dt">{}</span>
+  <span class="kw">containers</span>:
+  <span class="kw">-</span> name: checker
+    <span class="kw">image</span>: alpine
+    <span class="kw">command</span>: [<span class="st">&quot;/bin/sh&quot;</span>, <span class="st">&quot;-c&quot;</span>, <span class="st">&quot;if [ -f /workdir/calm.txt ];then sleep 100000;else exit 1;fi&quot;</span>]
+    <span class="kw">volumeMounts</span>:
+    <span class="kw">-</span> name: workdir  
+      <span class="kw">mountPath</span>: /workdir
+  <span class="kw">initContainers</span>:
+  <span class="kw">-</span> name: busybox
+    <span class="kw">image</span>: busybox  
+    <span class="kw">command</span>: [<span class="st">&#39;/bin/sh&#39;</span>, <span class="st">&#39;-c&#39;</span>, <span class="st">&#39;touch /workdir/calm.txt&#39;</span>]
+    <span class="kw">volumeMounts</span>:
+    <span class="kw">-</span> name: workdir  
+      <span class="kw">mountPath</span>: /workdir</code></pre>
+<blockquote>
+<ul>
+<li><code>sh -c</code> 它可以让 bash 将一个字串作为完整的命令来执行，这样就可以将 sudo 的影响范围扩展到整条命令。<br /></li>
+<li><code>test -e</code> 该『文件名』是否存在</li>
+</ul>
+</blockquote>
+<p></details></p>

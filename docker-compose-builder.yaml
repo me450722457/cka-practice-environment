@@ -21,7 +21,7 @@ services:
     networks:
     - frontend
     environment:
-      GATEONE_HTTP_SERVER: "47.52.219.131:8000"
+      GATEONE_HTTP_SERVER: "192.168.0.134:8000"
 
 networks:
   frontend: {}

@@ -1,5 +1,78 @@
-<h3>Q. Create pods with restricted resource usage</h3>
-<p>
-    <li>Create 2 pods that has a CPU limit of 2 and should request 0.5 CPU when started.</li>
-    <li>Limit the memory usage for one of the pod to 100Mb.</li>
-</p>
+<h2>13. 不要以持久卷的方式挂载</h2>
+<ul>
+<li><p>Set configuration context $ kubectl config use-context k8s</p></li>
+<li><p>Create a pod as follow：</p></li>
+<li><p>Name：non-persistent-redis</p></li>
+<li><p>Container image: redis</p></li>
+<li><p>Name-volume with name: cache-control</p></li>
+<li><p>Mount path: /data/redis</p></li>
+<li><p>It should launch in the pre-pod namespace and the volums MUST NOT be persistent</p></li>
+</ul>
+<p><details><br /><summary><b>中文翻译</b></summary></p>
+<blockquote>
+<p>创建一个pod，名为non-presistent-redis,<br />挂载存储卷，卷名为：cache-control，挂载到本地的：/data/redis目录下，<br />在名称空间pre-prod里做，不要以持久卷方式挂载。</p>
+<p>解析：</p>
+<ul>
+<li>没有明确要求挂载在node主机上的具体位置，使用随机位置emptyDir:{} ,<br /></li>
+<li>如果明确挂载到主机的指定位置和地址，则使用hostPath</li>
+</ul>
+</blockquote>
+<p></details></p>
+<p><details><br /><summary><b>答案</b></summary></p>
+<pre class="sourceCode bash"><code class="sourceCode bash"><span class="co"># emptyDir方式：</span>
+<span class="co"># 官方文档搜索，volume，参考如下：</span>
+<span class="co"># 首先使用命令生成yaml文件</span>
+<span class="kw">kubectl</span> run non-persistent-redis  --image=redis --generator=run-pod/v1 --dry-run -o yaml <span class="kw">&gt;</span> ./13.yaml
+<span class="co"># 根据官方文档中emptyDir的例子修改，参考如下：</span>
+<span class="kw">apiVersion</span>: v1
+<span class="kw">kind</span>: Pod
+<span class="kw">metadata</span>:
+  <span class="kw">creationTimestamp</span>: null
+  <span class="kw">labels</span>:
+    <span class="kw">run</span>: non-persistent-redis
+  <span class="kw">name</span>: non-persistent-redis
+<span class="kw">spec</span>:
+  <span class="kw">volumes</span>:
+  <span class="kw">-</span> name: cache-control
+    <span class="kw">emptyDir</span>: <span class="dt">{}</span>
+  <span class="kw">containers</span>:
+  <span class="kw">-</span> image: redis
+    <span class="kw">imagePullPolicy</span>: IfNotPresent
+    <span class="kw">name</span>: non-persistent-redis
+    <span class="kw">resources</span>: <span class="dt">{}</span>
+    <span class="kw">volumeMounts</span>:
+    <span class="kw">-</span> mountPath: /data/redis
+      <span class="kw">name</span>: cache-control
+  <span class="kw">dnsPolicy</span>: ClusterFirst
+  <span class="kw">restartPolicy</span>: Always
+<span class="kw">status</span>: <span class="dt">{}</span>
+<span class="co"># 创建namespace，并创建pod指定namespace</span>
+<span class="kw">kubectl</span> create ns pre-pod
+<span class="kw">kubectl</span> apply -f 13.yaml -n pre-pod
+
+
+<span class="co"># hostPath方式：</span>
+<span class="co"># 官方文档搜索，volume，参考如下：</span>
+<span class="co"># 首先使用命令生成yaml文件</span>
+<span class="kw">kubectl</span> run non-persistent-redis  --image=redis --generator=run-pod/v1 --dry-run -o yaml <span class="kw">&gt;</span> ./13.yaml
+<span class="co"># 根据官方文档中hostPath的例子修改，参考如下：</span>
+<span class="kw">apiVersion</span>: v1
+<span class="kw">kind</span>: Pod
+<span class="kw">metadata</span>:
+  <span class="kw">name</span>: non-presistent-redis
+  <span class="kw">namespace</span>: pre-prod
+<span class="kw">spec</span>:
+  <span class="kw">containers</span>:
+  <span class="kw">-</span> image: redis
+    <span class="kw">name</span>: redis
+    <span class="kw">volumeMounts</span>:
+    <span class="kw">-</span> mountPath: /data/redis
+      <span class="kw">name</span>: cache-control
+  <span class="kw">volumes</span>:
+  <span class="kw">-</span> name: cache-control
+    <span class="kw">hostPath</span>:
+      <span class="co"># directory location on host</span>
+      <span class="kw">path</span>: /data/redis
+      <span class="co"># this field is optional</span>
+      <span class="kw">type</span>: DirectoryOrCreate</code></pre>
+<p></details></p>

@@ -1,4 +1,71 @@
-<h3>Q. Create a horizontal autoscaling group</h3>
-<p>
-    Create a horizontal autoscaling group that should start with 2 pods and scale when CPU usage is over 50%.
-</p>
+<h2 id="secret">12. secret</h2>
+<ul>
+<li><p>Set configuration context $ kubectl config use-context k8s</p></li>
+<li><p>Create a kubetnetes Secret as follows:</p></li>
+<li><p>Name: super-secret</p></li>
+<li><p>Credential: alice or username:bob</p></li>
+<li><p>Create a Pod named <strong>pod-secrets-via-file</strong> using the redis image which <strong>mounts a secret named super-secret at /secrets</strong></p></li>
+<li><p>Create a second Pod named <strong>pod-secrets-via-env</strong> using the redis image,<strong>which exports credential/username as TOPSECRET/CREDENTIALS</strong></p></li>
+</ul>
+<p><details><br /><summary><b>中文翻译</b></summary></p>
+<blockquote>
+<p>创建一个secret，使用以下：</p>
+<ul>
+<li>名字：super-secret<br /></li>
+<li>Credential：alice or username：bob<br /></li>
+<li>创建一个pod名为pod-secrets-via-file 使用redis镜像，挂载名为super-secret的 挂载路径/secrets<br /></li>
+<li>使用redis镜像创建第二个Pod名称Pod-secrets-via-env，使用credential/username 的方式，对应的变量为：TOPSECRET/CREDENTIALS</li>
+</ul>
+</blockquote>
+<p></details></p>
+<p><details><br /><summary><b>答案</b></summary></p>
+<pre class="sourceCode bash"><code class="sourceCode bash"><span class="co"># 官方文档中搜索secret</span>
+
+<span class="co"># 创建secret  Credential: alice</span>
+<span class="kw">kubectl</span> create secret generic super-secret  --from-literal=credential=alice
+
+<span class="co"># 创建secret  username: bob</span>
+<span class="kw">kubectl</span> create secret generic super-secret  --from-literal=username=bob
+
+<span class="co"># 创建pod，pod-secrets-via-file</span>
+<span class="co"># 官方文档中搜索secret，参考如下</span>
+<span class="kw">apiVersion</span>: v1
+<span class="kw">kind</span>: Pod
+<span class="kw">metadata</span>:
+  <span class="kw">name</span>: mypod
+<span class="kw">spec</span>:
+  <span class="kw">containers</span>:
+  <span class="kw">-</span> name: mypod
+    <span class="kw">image</span>: redis
+    <span class="kw">volumeMounts</span>:
+    <span class="kw">-</span> name: foo
+      <span class="kw">mountPath</span>: <span class="st">&quot;/etc/foo&quot;</span>
+      <span class="kw">readOnly</span>: true
+  <span class="kw">volumes</span>:
+  <span class="kw">-</span> name: foo
+    <span class="kw">secret</span>:
+      <span class="kw">secretName</span>: mysecret
+
+<span class="co"># 创建pod，pod-secrets-via-env，将secret作为环境变量</span>
+<span class="co"># 官方文档中搜索secret，参考如下</span>
+<span class="kw">apiVersion</span>: v1
+<span class="kw">kind</span>: Pod
+<span class="kw">metadata</span>:
+  <span class="kw">name</span>: secret-env-pod
+<span class="kw">spec</span>:
+  <span class="kw">containers</span>:
+  <span class="kw">-</span> namener
+    <span class="kw">image</span>: redis
+    <span class="kw">env</span>:
+      <span class="kw">-</span> name: SECRET_USERNAME
+        <span class="kw">valueFrom</span>:
+          <span class="kw">secretKeyRef</span>:
+            <span class="kw">name</span>: mysecret
+            <span class="kw">key</span>: username
+      <span class="kw">-</span> name: SECRET_PASSWORD
+        <span class="kw">valueFrom</span>:
+          <span class="kw">secretKeyRef</span>:
+            <span class="kw">name</span>: mysecret
+            <span class="kw">key</span>: password
+  <span class="kw">restartPolicy</span>: Never</code></pre>
+<p></details></p>

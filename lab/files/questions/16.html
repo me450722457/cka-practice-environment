@@ -1,6 +1,18 @@
-<h3>Q. Create a namespace</h3>
-<p>
-    <li>Run a pod in the new namespace.</li>
-    <li>Put memory limits on the namespace.</li>
-    <li>Limit pods to 2 persistent volumes in this namespace.</li>
-</p>
+<h2 id="podcpu">16. 统计Pod的CPU</h2>
+<ul>
+<li><p>Set configuration context $ kubectl config use-context k8s</p></li>
+<li><p>From the pod label name=cpu-utilizer, <strong>find pods running high CPU</strong> workloads and write the name of the pod consuming most CPU to the file /opt/cpu.txt</p></li>
+</ul>
+<p><details><br /><summary><b>中文翻译</b></summary></p>
+<blockquote>
+<p>从标签为 name=cpu-utilizer的所有pod里面，找出cpu使用最高的那个pod，并写入到/opt/cpu.txt（这个文件已经存在）</p>
+</blockquote>
+<p></details></p>
+<p><details><br /><summary><b>答案</b></summary></p>
+<pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">kubectl</span> top pods -l name=cpu-utilizer -n kube-system
+
+<span class="kw">echo</span> <span class="st">&#39;[找到的pod名]&#39;</span> <span class="kw">&gt;&gt;</span> /opt/cpu.txt
+
+<span class="co"># 如果是找node，则使用</span>
+<span class="kw">kubectl</span> top nodes</code></pre>
+<p></details></p>

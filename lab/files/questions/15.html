@@ -1,4 +1,20 @@
-<h3>Q. Create a pod with specific UID</h3>
-<p>
-    Create a pod that runs all processes as user 1000.
-</p>
+<h2 id="nodereadynoschedule">15. 统计node是ready状态（不包括获得NoSchedule的节点）</h2>
+<ul>
+<li><p>Set configuration context $ kubectl config use-context k8s</p></li>
+<li><p>check to see how many nodes are ready （not including nodes tained NoSchedule) and write the number to /opt/nodenum</p></li>
+</ul>
+<p><details><br /><summary><b>中文翻译</b></summary></p>
+<blockquote>
+<p>检查有多少nodes是ready状态，（不包括获得NoSchedule的节点），写入数量到 /opt/nodenum</p>
+</blockquote>
+<p></details></p>
+<p><details><br /><summary><b>答案</b></summary></p>
+<pre class="sourceCode bash"><code class="sourceCode bash"><span class="co"># 首先找到ready的数量，grep -w为精确匹配</span>
+<span class="kw">kubectl</span> get node <span class="kw">|</span> <span class="kw">grep</span> -w  Ready <span class="kw">|</span> <span class="kw">wc</span> -l
+
+<span class="co"># 找到Taints为NoScheduler的数量</span>
+<span class="kw">kubectl</span> describe nodes <span class="kw">|</span> <span class="kw">grep</span> Taints <span class="kw">|</span> <span class="kw">grep</span> -I NoSchedule <span class="kw">|</span> <span class="kw">wc</span> -l  
+
+<span class="co"># 两个数字相减，就是答案</span>
+<span class="kw">echo</span> 2 <span class="kw">&gt;</span> /opt/nodenum</code></pre>
+<p></details></p>

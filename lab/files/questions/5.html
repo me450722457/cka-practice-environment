@@ -1,5 +1,44 @@
-<h3>Q. Create a pod with a Liveness and Readiness probes</h3>
-<p>
-    You need to create a pod called <i>upNready</i> that has liveness and readiness probes configured for it.
-    Feel free to choose any application of your choice for the pod.
-</p>
+<h2 id="pod">5. 多个容器的pod创建</h2>
+<ul>
+<li><p>Set configuration context $ kubectl config use-context k8s</p></li>
+<li><p>Create a pod named kucc4 with a single container for each of the following images running inside (there may be between 1 and 4 images specified):ngingx + redis + memcached + consul</p></li>
+</ul>
+<p><details><br /><summary><b>中文翻译</b></summary></p>
+<blockquote>
+<p>创建一个名为kucc4的pod，1个POD容器其中包含4个镜像：nginx+redis+memcached+consul</p>
+</blockquote>
+<p></details></p>
+<p><details><br /><summary><b>答案</b></summary></p>
+<pre class="sourceCode bash"><code class="sourceCode bash"><span class="kw">apiVersion</span>: v1
+<span class="kw">kind</span>: Pod
+<span class="kw">metadata</span>:
+  <span class="kw">labels</span>:
+    <span class="kw">run</span>: kucc4
+  <span class="kw">name</span>: kucc4
+<span class="kw">spec</span>:
+  <span class="kw">containers</span>:
+  <span class="kw">-</span> image: nginx
+    <span class="kw">name</span>: nginx
+  <span class="kw">-</span> image: redis
+    <span class="kw">name</span>: redis
+  <span class="kw">-</span> image: memcached
+    <span class="kw">name</span>: memcached
+  <span class="kw">-</span> image: consul
+    <span class="kw">name</span>: consul</code></pre>
+<p>如果指定要使用busybox镜像，一定要指定command为sleep，不然一直重启</p>
+<pre class="sourceCode bash"><code class="sourceCode bash">
+<span class="kw">apiVersion</span>: v1
+<span class="kw">kind</span>: Pod
+<span class="kw">metadata</span>:
+  <span class="kw">name</span>: busybox
+  <span class="kw">namespace</span>: default
+<span class="kw">spec</span>:
+  <span class="kw">containers</span>:
+  <span class="kw">-</span> name: busybox
+    <span class="kw">image</span>: busybox:1.28
+    <span class="kw">command</span>:
+      <span class="kw">-</span> sleep
+      <span class="kw">-</span> <span class="st">&quot;3600&quot;</span>
+    <span class="kw">imagePullPolicy</span>: IfNotPresent
+  <span class="kw">restartPolicy</span>: Always</code></pre>
+<p></details></p>

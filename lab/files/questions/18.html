@@ -1,7 +1,39 @@
-<h3>Q. Write a service that exposes nginx on a nodeport</h3>
-<p>
-    <li>Change it to use a cluster port.</li>
-    <li>Scale the service.</li>
-    <li>Change it to use an external IP.</li>
-    <li>Change it to use a load balancer.</li>
-</p>
+<h2 id="etcd-">18. etcd 快照</h2>
+<ul>
+<li><p>No configuration context change requried for this item</p></li>
+<li><p>Create a snapshot of the etcd instance running at <code>http://127.0.0.1:2379</code> saving the snapshot to the file path /data/backup/etcd-snapshot.db</p></li>
+<li><p>The etcd instance is running etcd version 3.2.18</p></li>
+<li><p>The following TLS certificates/key are supplied for connnecting to the server with etcdctl</p></li>
+<li><p>CA certificate：/opt/KUCM00302/ca.crt</p></li>
+<li><p>Client certificate：/opt/KUCM00302/etcd-client.crt</p></li>
+<li><p>Client key: /opt/KUCM00302/etcd-client.key</p></li>
+</ul>
+<p><details><br /><summary><b>中文翻译</b></summary></p>
+<blockquote>
+<p>这题是需要用以下的证书和密钥之类的，创建一个snapshot(快照)，快照生成完的保存路径为：/data/backup/etcd-snapshot.db</p>
+</blockquote>
+<p></details></p>
+<p><details><br /><summary><b>答案</b></summary></p>
+<blockquote>
+<p>注意：etcd API 又有 v3 和 v2 之分，使用方法不同，如果使用v3请先执行export ETCDCTL_API=3</p>
+</blockquote>
+<pre class="sourceCode bash"><code class="sourceCode bash"><span class="co"># 首先，进入到具体的节点上面去</span>
+<span class="co"># 这一步可以根据题目中的ssh的操作来进行</span>
+<span class="co"># 创建自己的snapshot</span>
+
+
+<span class="co"># etcdctl --help 再etcdctl snapshot save --help</span>
+<span class="co"># ETCDCTL_API=3 etcdctl --endpoints $ENDPOINT snapshot save snapshotdb</span>
+
+<span class="kw">etcdctl</span> --endpoints=http://127.0.0.1:2379 \
+    <span class="kw">--ca-file</span>=/opt/KUCM00302/ca.crt \
+    <span class="kw">--certfile</span>=/opt/KUCM00302/etcd-client.crt \
+    <span class="kw">--key</span>=/opt/KUCM00302/etcd-client.key snapshot save /data/backup/etcd-snapshot.db
+
+<span class="co"># 将创建好的snapshot输出，如果题目中没有要求输出，则不需要做这一步，但是为了保证答案正确，可以自己输出一下来进行检验。</span>
+<span class="co"># verify the snapshot</span>
+<span class="ot">ETCDCTL_API=</span>3 <span class="kw">etcdctl</span> --write-out=table snapshot status snapshotdb
+
+<span class="co"># 输出到指定文件夹</span>
+<span class="ot">ETCDCTL_API=</span>3 <span class="kw">etcdctl</span> --write-out=table snapshot status 上一步保存的文件名 <span class="kw">&gt;</span>aim.txt</code></pre>
+<p></details></p>
