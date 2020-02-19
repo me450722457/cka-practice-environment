@@ -3,7 +3,7 @@ version: "3"
 services:
 
   gateone:
-    image: satomic/gateone:http
+    image: me450722457/cka_lab:gateone
     ports:
     - "8000:8000"
     hostname: kubectl
@@ -14,7 +14,7 @@ services:
     - /root/.kube/:/root/.kube/
 
   lab:
-    image: satomic/cka_lab
+    image: me450722457/cka_lab:lab
     entrypoint: /opt/entry.bash
     ports:
       - 80:80
