@@ -1,0 +1,186 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: production
+
+---
+
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: foobar
+  name: foobar
+spec:
+  containers:
+  - image: nginx
+    name: foobar
+    command: ['sh', '-c', 'for i in `seq 1 10`;do echo "This is a test log >> unable-to-acces
+s-website"> /dev/stdout;sleep 2;done']
+    resources: {}
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+status: {}
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: nginx
+  name: foo
+  namespace: production
+spec:
+  externalTrafficPolicy: Cluster
+  ports:
+  - name: 80-80
+    nodePort: 32138
+    port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: nginx
+  sessionAffinity: None
+  type: NodePort
+status:
+  loadBalancer: {}
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: nginx
+  name: nginx
+  namespace: production
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - image: nginx
+        imagePullPolicy: Always
+        name: nginx
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: webserver
+    name: cpu-utilizer
+  name: webserver
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: webserver
+      name: cpu-utilizer
+  template:
+    metadata:
+      labels:
+        app: webserver
+        name: cpu-utilizer
+    spec:
+      containers:
+      - image: nginx
+        imagePullPolicy: Always
+        name: webserver
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+
+---
+
+apiVersion: v1
+items:
+- apiVersion: v1
+  kind: PersistentVolume
+  metadata:
+    name: local-pv-sdc2
+  spec:
+    accessModes:
+    - ReadWriteOnce
+    capacity:
+      storage: 9Gi
+    local:
+      path: /data/pv
+    nodeAffinity:
+      required:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: kubernetes.io/hostname
+            operator: In
+            values:
+            - cka
+    persistentVolumeReclaimPolicy: Retain
+    storageClassName: local-storage
+    volumeMode: Filesystem
+  status:
+    phase: Available
+- apiVersion: v1
+  kind: PersistentVolume
+  metadata:
+    name: local-pv-sdb1
+  spec:
+    accessModes:
+    - ReadWriteOnce
+    capacity:
+      storage: 8Gi
+    local:
+      path: /data/pv
+    nodeAffinity:
+      required:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: kubernetes.io/hostname
+            operator: In
+            values:
+            - cka
+    persistentVolumeReclaimPolicy: Retain
+    storageClassName: local-storage
+    volumeMode: Filesystem
+  status:
+    phase: Available
+- apiVersion: v1
+  kind: PersistentVolume
+  metadata:
+    name: local-pv-sdc1
+  spec:
+    accessModes:
+    - ReadWriteOnce
+    capacity:
+      storage: 7Gi
+    local:
+      path: /data/pv
+    nodeAffinity:
+      required:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: kubernetes.io/hostname
+            operator: In
+            values:
+            - cka
+    persistentVolumeReclaimPolicy: Retain
+    storageClassName: local-storage
+    volumeMode: Filesystem
+  status:
+    phase: Available
+kind: List
